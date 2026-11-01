@@ -18,3 +18,12 @@ Les fonctionnalités postérieures à v0.1 ne sont pas implémentées.
 - Les paramètres de densité sont indépendants du choix de la palette visuelle ; les valeurs sont des pixels JUCE logiques et non des pixels physiques.
 
 **Validation à réaliser :** compilation Windows/macOS/Linux, contrôle à 100 %, 125 %, 150 % HiDPI ; vérification des libellés et de l'absence de chevauchement en tailles de fenêtres réduites.
+
+## Charte de menus compacte (novembre 2026)
+
+- Une seule police et une seule hauteur de référence pour barre de menus et menus déroulants ; popup calculée sur la largeur du texte + marges serrées.
+- Même `LaboratoryLookAndFeel` appliqué explicitement aux menus de la barre principale, menus contextuels et sous-menus.
+- Les menus déclenchés par les boutons préfèrent **descendre** sous leur contrôle. JUCE peut les repositionner si l'espace écran est insuffisant. Les sous-menus en cascade s'ouvrent latéralement selon l'espace disponible.
+- Ne pas conserver une large réserve de gauche lorsqu'il n'y a ni coche ni icône, ni de réserve droite en l'absence de raccourci ou sous-menu.
+- UTF-8 : les chaînes accentuées dans les sources C++ utilisent des échappements Unicode, y compris les libellés initialisés dans l'en-tête.
+- Validation en attente sur Windows avec VS 2026/JUCE 8.0.9, puis macOS et Linux.
