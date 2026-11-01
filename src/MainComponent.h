@@ -51,7 +51,7 @@ private:
     juce::TooltipWindow tooltipWindow { this, 1000 };
     juce::Label title, description, themeLabel, densityLabel, choiceLabel, sliderLabel, status, detail;
     juce::ComboBox themeBox, densityBox, choiceBox;
-    juce::TextButton openButton { "Ouvrir…" }, saveButton { "Enregistrer…" }, contextButton { "Menu contextuel" }, actionButton { "Bouton d'action" };
+    juce::TextButton openButton { juce::String::fromUTF8(u8"Ouvrir…") }, saveButton { juce::String::fromUTF8(u8"Enregistrer…") }, contextButton { "Menu contextuel" }, actionButton { "Bouton d'action" };
     juce::ToggleButton nativeChooser { "Dialogue de fichiers natif" }, enabledToggle { "Activer l'option" };
     juce::Slider slider;
     juce::TextEditor editor;
