@@ -43,16 +43,16 @@ void MainComponent::LaboratoryLookAndFeel::drawPopupMenuBackground(juce::Graphic
 
 MainComponent::MainComponent()
 {
-    palettes.add({ "JUCE Classic", 0xffe3e3e3, 0xfff7f7f7, 0xff202020, 0xff507caf, 4, 15 });
-    palettes.add({ "JUCE Compact", 0xff24272b, 0xff34383e, 0xfff4f4f4, 0xff6facd5, 2, 13 });
-    palettes.add({ "JUCE Modern", 0xff1d222b, 0xff303948, 0xfff4f6fa, 0xff57b0ed, 12, 16 });
-    palettes.add({ "JUCE Studio", 0xff171b20, 0xff282c34, 0xffe4e7ed, 0xffe39b53, 6, 15 });
-    palettes.add({ "Windows Classic (inspiré)", 0xffd4d0c8, 0xffefede7, 0xff1d1d1d, 0xff2753b5, 0, 14 });
-    palettes.add({ "Windows 11 (inspiré)", 0xffebedf2, 0xffffffff, 0xff20252c, 0xff0067c0, 8, 15 });
-    palettes.add({ "macOS (inspiré)", 0xffeeeeef, 0xffffffff, 0xff25262a, 0xff007aff, 10, 15 });
-    palettes.add({ "GNOME Adwaita (inspiré)", 0xfff6f5f4, 0xffffffff, 0xff242424, 0xff3584e4, 9, 15 });
-    palettes.add({ "KDE Breeze (inspiré)", 0xffeff2f5, 0xffffffff, 0xff232629, 0xff3daee9, 5, 15 });
-    palettes.add({ "Custom Lab", 0xff262433, 0xff39364b, 0xfff2eefa, 0xffbb86fc, 10, 16 });
+    palettes.add({ "JUCE Classic", juce::Colour(0xffe3e3e3), juce::Colour(0xfff7f7f7), juce::Colour(0xff202020), juce::Colour(0xff507caf), 4, 15 });
+    palettes.add({ "JUCE Compact", juce::Colour(0xff24272b), juce::Colour(0xff34383e), juce::Colour(0xfff4f4f4), juce::Colour(0xff6facd5), 2, 13 });
+    palettes.add({ "JUCE Modern", juce::Colour(0xff1d222b), juce::Colour(0xff303948), juce::Colour(0xfff4f6fa), juce::Colour(0xff57b0ed), 12, 16 });
+    palettes.add({ "JUCE Studio", juce::Colour(0xff171b20), juce::Colour(0xff282c34), juce::Colour(0xffe4e7ed), juce::Colour(0xffe39b53), 6, 15 });
+    palettes.add({ "Windows Classic (inspiré)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 14 });
+    palettes.add({ "Windows 11 (inspiré)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 15 });
+    palettes.add({ "macOS (inspiré)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 15 });
+    palettes.add({ "GNOME Adwaita (inspiré)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 15 });
+    palettes.add({ "KDE Breeze (inspiré)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 15 });
+    palettes.add({ "Custom Lab", juce::Colour(0xff262433), juce::Colour(0xff39364b), juce::Colour(0xfff2eefa), juce::Colour(0xffbb86fc), 10, 16 });
 
     setLookAndFeel(&lookAndFeel);
     addAndMakeVisible(menuBar);
@@ -76,7 +76,8 @@ MainComponent::MainComponent()
     densityBox.setSelectedId(1);
     choiceBox.setSelectedId(1);
     for (auto* b : { &openButton, &saveButton, &contextButton, &actionButton }) { addAndMakeVisible(*b); b->addListener(this); }
-    for (int i = 0; i < 3; ++i) { addAndMakeVisible(tabs[i]); tabs[i].addListener(this); }
+    const juce::String tabNames[] = { "Composants", "Menus", "Fichiers" };
+    for (int i = 0; i < 3; ++i) { tabs[i].setButtonText(tabNames[i]); addAndMakeVisible(tabs[i]); tabs[i].addListener(this); }
     nativeChooser.setToggleState(true, juce::dontSendNotification);
     enabledToggle.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(nativeChooser);
@@ -137,7 +138,7 @@ void MainComponent::selectTheme(int index)
     lookAndFeel.setPalette(current);
     title.setFont(juce::Font(juce::FontOptions(current.fontSize + 12.0f, juce::Font::bold)));
     description.setFont(juce::Font(juce::FontOptions(current.fontSize)));
-    menuBar.menuBarItemsChanged();
+    menuItemsChanged();
     repaint();
     updateLayout();
 }
@@ -171,8 +172,8 @@ void MainComponent::buttonClicked(juce::Button* b)
 void MainComponent::chooseFile(bool save)
 {
     chooser = std::make_unique<juce::FileChooser>(save ? "Enregistrer un fichier" : "Ouvrir un fichier", juce::File{}, "*", nativeChooser.getToggleState());
-    int flags = (save ? juce::FileBrowserComponent::saveMode : juce::FileBrowserComponent::openMode) | juce::FileBrowserComponent::canSelectFiles;
-    chooser->launchAsync(flags, [safe = juce::Component::SafePointer<MainComponent>(this), save](const juce::FileChooser& fc)
+    int chooserFlags = (save ? juce::FileBrowserComponent::saveMode : juce::FileBrowserComponent::openMode) | juce::FileBrowserComponent::canSelectFiles;
+    chooser->launchAsync(chooserFlags, [safe = juce::Component::SafePointer<MainComponent>(this), save](const juce::FileChooser& fc)
     {
         if (safe != nullptr && fc.getResult() != juce::File{})
             safe->status.setText((save ? "Destination choisie (aucune écriture) : " : "Fichier choisi : ") + fc.getResult().getFullPathName(), juce::dontSendNotification);
