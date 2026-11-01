@@ -16,6 +16,7 @@ private:
         juce::String name;
         juce::Colour background, surface, text, accent;
         int corner = 6;
+        int style = 0; // 0 classique, 1 compact, 2 moderne, 3 studio, 4 Win32, 5 Win11, 6 macOS, 7 GNOME, 8 KDE, 9 laboratoire
         float fontSize = 15.0f;
     };
     class LaboratoryLookAndFeel final : public juce::LookAndFeel_V4
@@ -24,6 +25,8 @@ private:
         void setPalette(const Palette&);
         void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
         void drawPopupMenuBackground(juce::Graphics&, int, int) override;
+        void drawComboBox(juce::Graphics&, int, int, bool, int, int, int, int, juce::ComboBox&) override;
+        void drawToggleButton(juce::Graphics&, juce::ToggleButton&, bool, bool) override;
     private:
         Palette palette;
     } lookAndFeel;
