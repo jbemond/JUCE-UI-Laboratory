@@ -78,6 +78,10 @@ void MainComponent::LaboratoryLookAndFeel::drawButtonBackground(juce::Graphics& 
         }
     }
 }
+juce::Font MainComponent::LaboratoryLookAndFeel::getPopupMenuFont()
+{
+    return juce::Font(juce::FontOptions(palette.fontSize));
+}
 void MainComponent::LaboratoryLookAndFeel::drawPopupMenuBackground(juce::Graphics& g, int w, int h)
 {
     g.fillAll(palette.surface);
@@ -145,19 +149,20 @@ void MainComponent::LaboratoryLookAndFeel::drawMenuBarItem(juce::Graphics& g, in
     g.drawFittedText(text, 0, 0, w, h, juce::Justification::centred, 1);
 }
 void MainComponent::LaboratoryLookAndFeel::getIdealPopupMenuItemSize(const juce::String& text, bool separator,
-                                                                       int standardHeight, int& width, int& height)
+                                                                       int, int& idealWidth, int& idealHeight)
 {
-    juce::LookAndFeel_V4::getIdealPopupMenuItemSize(text, separator, standardHeight, width, height);
     if (separator)
     {
-        height = palette.style == 1 || palette.style == 4 ? 5 : 12;
+        idealWidth = 2;
+        idealHeight = 5;
+        return;
     }
-    else
-    {
-        height = palette.style == 1 ? 23 : palette.style == 4 ? 25 :
-                 palette.style == 6 || palette.style == 7 ? 37 : 31;
-        width += palette.style == 6 || palette.style == 7 ? 34 : 14;
-    }
+
+    // The menu uses exactly the same font as the main application menu bar.
+    // Reserve the checkmark gutter only for menus that can contain selections
+    // (JUCE normally positions menu items using a shared width).
+    idealWidth = juce::GlyphArrangement::getStringWidthInt(getPopupMenuFont(), text) + 26;
+    idealHeight = juce::roundToInt(palette.fontSize) + 10;
 }
 void MainComponent::LaboratoryLookAndFeel::drawPopupMenuItem(juce::Graphics& g, const juce::Rectangle<int>& area,
                                                                bool separator, bool active, bool highlighted, bool ticked,
@@ -166,48 +171,47 @@ void MainComponent::LaboratoryLookAndFeel::drawPopupMenuItem(juce::Graphics& g, 
 {
     if (separator)
     {
-        g.setColour(palette.text.withAlpha(0.18f));
-        g.fillRect(area.reduced(palette.style == 4 ? 3 : 14, 0).withHeight(1).withY(area.getCentreY()));
+        g.setColour(palette.text.withAlpha(0.20f));
+        g.fillRect(area.reduced(5, 0).withHeight(1).withY(area.getCentreY()));
         return;
     }
-    const int s = palette.style;
-    if (active && highlighted)
-    {
-        g.setColour(palette.accent.withAlpha(s == 4 || s == 0 ? 1.0f : 0.82f));
-        auto r = area.toFloat().reduced(s == 4 ? 0.0f : 4.0f, 1.0f);
-        if (s == 4 || s == 0) g.fillRect(r);
-        else g.fillRoundedRectangle(r, (float) (s == 6 || s == 7 ? 8 : palette.corner));
-    }
     const bool selected = active && highlighted;
-    g.setColour(textColour != nullptr ? *textColour :
-                selected ? juce::Colours::white : palette.text.withMultipliedAlpha(active ? 1.0f : 0.45f));
-    const auto font = juce::Font(juce::FontOptions(palette.fontSize));
-    g.setFont(font);
-    const int inset = s == 4 ? 25 : 32;
-    g.drawFittedText(text, area.withTrimmedLeft(inset).withTrimmedRight(54),
+    if (selected)
+    {
+        g.setColour(palette.accent);
+        if (palette.style == 0 || palette.style == 4)
+            g.fillRect(area);
+        else
+            g.fillRoundedRectangle(area.toFloat().reduced(2.0f, 1.0f), (float) juce::jmin(palette.corner, 5));
+    }
+
+    g.setColour(textColour != nullptr ? *textColour
+                                      : selected ? juce::Colours::white
+                                                 : palette.text.withMultipliedAlpha(active ? 1.0f : 0.45f));
+    g.setFont(getPopupMenuFont());
+    const int left = ticked || icon != nullptr ? 24 : 8;
+    const int right = hasSubMenu ? 18 : (shortcut.isNotEmpty() ? 45 : 7);
+    g.drawFittedText(text, area.withTrimmedLeft(left).withTrimmedRight(right),
                      juce::Justification::centredLeft, 1);
     if (shortcut.isNotEmpty())
-    {
-        g.setFont(juce::Font(juce::FontOptions(palette.fontSize - 1.0f)));
-        g.drawFittedText(shortcut, area.withTrimmedRight(18), juce::Justification::centredRight, 1);
-    }
+        g.drawFittedText(shortcut, area.withTrimmedRight(17),
+                         juce::Justification::centredRight, 1);
+
     if (ticked)
     {
-        g.drawLine((float) area.getX() + 10, (float) area.getCentreY(),
-                   (float) area.getX() + 14, (float) area.getCentreY() + 4, 2.0f);
-        g.drawLine((float) area.getX() + 14, (float) area.getCentreY() + 4,
-                   (float) area.getX() + 21, (float) area.getCentreY() - 5, 2.0f);
+        const float x = (float) area.getX() + 6, y = (float) area.getCentreY();
+        g.drawLine(x, y, x + 4.0f, y + 4.0f, 1.5f);
+        g.drawLine(x + 4.0f, y + 4.0f, x + 11.0f, y - 4.0f, 1.5f);
     }
     if (hasSubMenu)
     {
+        const float x = (float) area.getRight() - 12, y = (float) area.getCentreY();
         juce::Path arrow;
-        const float x = (float) area.getRight() - 14.0f, y = (float) area.getCentreY();
-        arrow.startNewSubPath(x - 3, y - 4);
-        arrow.lineTo(x + 1, y);
-        arrow.lineTo(x - 3, y + 4);
+        arrow.startNewSubPath(x - 2, y - 4);
+        arrow.lineTo(x + 2, y);
+        arrow.lineTo(x - 2, y + 4);
         g.strokePath(arrow, juce::PathStrokeType(1.5f));
     }
-    juce::ignoreUnused(icon);
 }
 void MainComponent::LaboratoryLookAndFeel::drawComboBox(juce::Graphics& g, int w, int h, bool,
                                                           int, int, int, int, juce::ComboBox& box)
@@ -335,7 +339,8 @@ juce::PopupMenu MainComponent::getMenuForIndex(int index, const juce::String&)
     if (index == 0) { m.addItem(1, "Ouvrir\u2026"); m.addItem(2, "Enregistrer\u2026"); m.addSeparator(); m.addItem(3, "Quitter"); }
     if (index == 1) { m.addItem(4, "S\u00e9lectionner tout"); m.addItem(5, "Effacer le texte"); }
     if (index == 2)
-        for (int i = 0; i < palettes.size(); ++i) m.addItem(100 + i, palettes[i].name, true, themeBox.getSelectedItemIndex() == i);
+        for (int i = 0; i < palettes.size(); ++i)
+            m.addItem(100 + i, palettes[i].name, true, themeBox.getSelectedItemIndex() == i);
     if (index == 3) { m.addItem(6, "Menu contextuel"); m.addItem(7, "Choisir un dossier\u2026"); }
     if (index == 4) m.addItem(8, "\u00c0 propos du laboratoire");
     return m;
@@ -420,7 +425,7 @@ void MainComponent::buttonClicked(juce::Button* b)
         juce::PopupMenu sub;
         sub.addItem(3, "Sous-menu");
         menu.addSubMenu("Options suppl\u00e9mentaires", sub);
-        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(contextButton),
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(contextButton).withPreferredPopupDirection(juce::PopupMenu::Options::PopupDirection::downwards),
             [safe = juce::Component::SafePointer<MainComponent>(this)](int result)
             {
                 if (safe != nullptr && result > 0) safe->status.setText("Menu : action " + juce::String(result), juce::dontSendNotification);
