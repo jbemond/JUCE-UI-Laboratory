@@ -293,7 +293,7 @@ MainComponent::MainComponent()
     densityBox.addItemList({ "Normale", "Compacte", "Large" }, 1);
     choiceBox.addItemList({ "Option A", "Option B", "Option C" }, 1);
     for (auto* c : { &themeBox, &densityBox, &choiceBox }) { addAndMakeVisible(*c); c->addListener(this); }
-    densityBox.setSelectedId(1);
+    densityBox.setSelectedId(2); // Compacte par defaut (id 2)
     choiceBox.setSelectedId(1);
     for (auto* b : { &openButton, &saveButton, &contextButton, &actionButton }) { addAndMakeVisible(*b); b->addListener(this); }
     const juce::String tabNames[] = { "Composants", "Menus", "Fichiers" };
@@ -311,7 +311,15 @@ MainComponent::MainComponent()
     editor.setMultiLine(true);
     editor.setText("Texte \u00e9ditable \u2014 caract\u00e8res UTF-8 : \u00e9t\u00e9, cr\u00e9ation, fa\u00e7ade, c\u0153ur.\nEssayez de modifier le th\u00e8me puis de s\u00e9lectionner un fichier.");
     addAndMakeVisible(editor);
-    setSize(1120, 740);
+    setSize(1040, 680);
+    openButton.setTooltip("Ouvrir un fichier - dialogue natif ou JUCE");
+    saveButton.setTooltip("Choisir une destination sans ecrire de fichier");
+    contextButton.setTooltip("Afficher un menu contextuel et ses sous-menus");
+    actionButton.setTooltip("Declencher une action de demonstration");
+    nativeChooser.setTooltip("Choisir un dialogue natif du systeme ou un dialogue JUCE");
+    themeBox.setTooltip("Changer completement le style graphique du programme");
+    densityBox.setTooltip("Compacte : economise l'espace ; Normale ; Large");
+    slider.setTooltip("Reglage numerique avec souris ou clavier");
     themeBox.setSelectedId(3);
 }
 MainComponent::~MainComponent()
@@ -384,8 +392,11 @@ void MainComponent::selectTheme(int index)
     editor.setColour(juce::TextEditor::backgroundColourId, current.surface);
     editor.applyColourToAllText(current.text, true);
     editor.repaint();
-    title.setFont(juce::Font(juce::FontOptions(current.fontSize + 12.0f, juce::Font::bold)));
-    description.setFont(juce::Font(juce::FontOptions(current.fontSize)));
+    title.setFont(juce::Font(juce::FontOptions(current.fontSize + (density == 1 ? 6.0f : 9.0f), juce::Font::bold)));
+    const float textSize = density == 1 ? 12.0f : (density == 2 ? 16.0f : 13.0f);
+    description.setFont(juce::Font(juce::FontOptions(textSize)));
+    for (auto* label : { &themeLabel, &densityLabel, &choiceLabel, &sliderLabel, &status, &detail })
+        label->setFont(juce::Font(juce::FontOptions(textSize)));
     menuItemsChanged();
     repaint();
     updateLayout();
@@ -393,7 +404,7 @@ void MainComponent::selectTheme(int index)
 void MainComponent::comboBoxChanged(juce::ComboBox* c)
 {
     if (c == &themeBox) selectTheme(themeBox.getSelectedItemIndex());
-    if (c == &densityBox) { density = densityBox.getSelectedItemIndex(); updateLayout(); }
+    if (c == &densityBox) { density = densityBox.getSelectedItemIndex(); selectTheme(themeBox.getSelectedItemIndex()); }
 }
 void MainComponent::buttonClicked(juce::Button* b)
 {
@@ -430,8 +441,9 @@ void MainComponent::chooseFile(bool save)
 void MainComponent::paint(juce::Graphics& g)
 {
     g.fillAll(current.background);
-    auto r = getLocalBounds().reduced(20);
-    r.removeFromTop(157);
+    const int margin = density == 1 ? 12 : density == 2 ? 24 : 16;
+    auto r = getLocalBounds().reduced(margin);
+    r.removeFromTop(density == 1 ? 116 : density == 2 ? 165 : 139);
     g.setColour(current.surface);
     if (current.style == 4 || current.style == 0) g.fillRect(r);
     else g.fillRoundedRectangle(r.toFloat(), static_cast<float>(current.corner));
@@ -442,63 +454,64 @@ void MainComponent::paint(juce::Graphics& g)
 void MainComponent::resized() { updateLayout(); }
 void MainComponent::updateLayout()
 {
-    const int spacing = density == 1 ? 6 : density == 2 ? 17 : 11;
-    const int height = density == 1 ? 27 : density == 2 ? 39 : 33;
+    // All sizes are logical JUCE pixels; the underlying OS manages HiDPI scaling.
+    const bool compact = density == 1;
+    const bool large = density == 2;
+    const int margin = compact ? 12 : (large ? 24 : 17);
+    const int spacing = compact ? 5 : (large ? 15 : 9);
+    const int height = compact ? 25 : (large ? 39 : 31);
+    const int menuHeight = compact ? 24 : (large ? 38 : 30);
     auto area = getLocalBounds();
-    const int menuHeight = current.style == 1 ? 25 : current.style == 4 ? 27 :
-                           current.style == 6 || current.style == 7 ? 39 : 33;
     menuBar.setBounds(area.removeFromTop(menuHeight));
-    area.reduce(22, 12);
-    title.setBounds(area.removeFromTop(46));
-    description.setBounds(area.removeFromTop(31));
-    auto controls = area.removeFromTop(48);
-    themeLabel.setBounds(controls.removeFromLeft(52));
-    themeBox.setBounds(controls.removeFromLeft(275).reduced(2, 5));
-    controls.removeFromLeft(14);
-    densityLabel.setBounds(controls.removeFromLeft(67));
-    densityBox.setBounds(controls.removeFromLeft(150).reduced(2, 5));
-    controls.removeFromLeft(18);
+    area.reduce(margin, compact ? 6 : 10);
+    title.setBounds(area.removeFromTop(compact ? 30 : (large ? 48 : 39)));
+    description.setBounds(area.removeFromTop(compact ? 21 : 27));
+    auto controls = area.removeFromTop(compact ? 34 : (large ? 48 : 41));
+    themeLabel.setBounds(controls.removeFromLeft(compact ? 47 : 54));
+    themeBox.setBounds(controls.removeFromLeft(compact ? 225 : 268).reduced(1, compact ? 4 : 5));
+    controls.removeFromLeft(spacing);
+    densityLabel.setBounds(controls.removeFromLeft(compact ? 60 : 68));
+    densityBox.setBounds(controls.removeFromLeft(compact ? 121 : 153).reduced(1, compact ? 4 : 5));
+    controls.removeFromLeft(spacing);
     nativeChooser.setBounds(controls);
-    area.removeFromTop(24);
-    // Audio studio and GNOME: navigation on the left instead of horizontal tabs.
+    area.removeFromTop(compact ? 10 : 22);
+
     if (current.style == 3 || current.style == 7)
     {
-        auto sidebar = area.removeFromLeft(167);
-        sidebar.removeFromTop(4);
+        auto sidebar = area.removeFromLeft(compact ? 130 : 167);
         for (auto& tab : tabs)
-        {
-            tab.setBounds(sidebar.removeFromTop(height + 12).reduced(4, 5));
-        }
-        area.removeFromLeft(12);
-        area.removeFromTop(5);
+            tab.setBounds(sidebar.removeFromTop(height + spacing).reduced(2, 2));
+        area.removeFromLeft(compact ? 6 : 12);
     }
     else
     {
-        auto tabRow = area.removeFromTop(height + 7);
-        const int tabWidth = current.style == 6 ? 120 : current.style == 1 ? 112 : 145;
-        for (auto& tab : tabs) { tab.setBounds(tabRow.removeFromLeft(tabWidth).reduced(3, 2)); }
-        area.removeFromTop(spacing + 8);
+        auto tabRow = area.removeFromTop(height + (compact ? 3 : 7));
+        const int tabWidth = compact ? 112 : (current.style == 6 ? 120 : 145);
+        for (auto& tab : tabs)
+            tab.setBounds(tabRow.removeFromLeft(tabWidth).reduced(compact ? 1 : 3, 1));
+        area.removeFromTop(compact ? 6 : spacing + 8);
     }
+
     auto buttons = area.removeFromTop(height);
-    const int actionWidth = (current.style == 3 || current.style == 7) ? 150 : 168;
+    const int actionWidth = compact ? 131 : (current.style == 3 || current.style == 7 ? 150 : 168);
     for (auto* b : { &openButton, &saveButton, &contextButton, &actionButton })
     {
-        b->setBounds(buttons.removeFromLeft(actionWidth).reduced(4, 0));
+        b->setBounds(buttons.removeFromLeft(actionWidth).reduced(compact ? 2 : 4, 0));
         buttons.removeFromLeft(spacing);
     }
-    area.removeFromTop(spacing + 6);
-    auto row = area.removeFromTop(height + 9);
-    choiceLabel.setBounds(row.removeFromLeft(135));
-    choiceBox.setBounds(row.removeFromLeft(195).reduced(3, 3));
-    row.removeFromLeft(15);
+    area.removeFromTop(spacing + (compact ? 3 : 6));
+    auto row = area.removeFromTop(height + (compact ? 3 : 9));
+    choiceLabel.setBounds(row.removeFromLeft(compact ? 114 : 135));
+    choiceBox.setBounds(row.removeFromLeft(compact ? 165 : 195).reduced(2, 2));
+    row.removeFromLeft(spacing);
     enabledToggle.setBounds(row.removeFromLeft(190));
     area.removeFromTop(spacing);
-    row = area.removeFromTop(height + 12);
-    sliderLabel.setBounds(row.removeFromLeft(135));
-    slider.setBounds(row.removeFromLeft(430));
+    row = area.removeFromTop(height + (compact ? 5 : 12));
+    sliderLabel.setBounds(row.removeFromLeft(compact ? 112 : 135));
+    slider.setBounds(row.removeFromLeft(compact ? 375 : 430));
     area.removeFromTop(spacing);
-    detail.setBounds(area.removeFromTop(28));
-    status.setBounds(area.removeFromBottom(35));
+    detail.setBounds(area.removeFromTop(compact ? 22 : 28));
+    status.setBounds(area.removeFromBottom(compact ? 25 : 35));
     area.removeFromBottom(spacing);
-    editor.setBounds(area.reduced(2));
+    editor.setBounds(area.reduced(compact ? 1 : 2));
 }
