@@ -14,3 +14,7 @@ cmake --build build --config Release
 Dix thèmes : JUCE Classic, Compact, Modern, Studio, Windows Classic, Windows 11, macOS, GNOME, KDE et Custom Lab. Les styles système sont des **imitations JUCE**, pas des widgets Win32/Cocoa/GTK/Qt réels. Le choix du dialogue natif est disponible via `FileChooser` lorsque supporté. Le bouton Enregistrer ne modifie pas de fichier.
 
 Version initiale non encore compilée sur les trois OS ; validation nécessaire.
+
+## Habillages (mise à jour expérimentale)
+
+Les profils ne changent plus seulement les couleurs : les boutons (reliefs, ombres, formes), cases à cocher/interrupteurs, listes déroulantes, onglets, barres de menus et menus contextuels possèdent des modes de dessin distincts. La hauteur des menus, les espacements, les séparateurs, les coches et les états survolés varient également selon le style. **Ces adaptations restent des rendus JUCE et non des widgets natifs Win32, Cocoa ou GTK/Qt.** Cette évolution doit encore être compilée et contrôlée visuellement sur Windows, macOS et Linux.
