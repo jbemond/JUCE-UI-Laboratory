@@ -47,6 +47,7 @@ private:
     void updateLayout();
 
     juce::MenuBarComponent menuBar { this };
+    juce::TooltipWindow tooltipWindow { this, 1000 };
     juce::Label title, description, themeLabel, densityLabel, choiceLabel, sliderLabel, status, detail;
     juce::ComboBox themeBox, densityBox, choiceBox;
     juce::TextButton openButton { "Ouvrir…" }, saveButton { "Enregistrer…" }, contextButton { "Menu contextuel" }, actionButton { "Bouton d'action" };
