@@ -364,6 +364,7 @@ void MainComponent::selectTheme(int index)
 {
     if (! juce::isPositiveAndBelow(index, palettes.size())) return;
     current = palettes[index];
+    current.fontSize = density == 1 ? 12.0f : (density == 2 ? 16.0f : 13.5f);
     lookAndFeel.setPalette(current);
     for (auto* child : { static_cast<juce::Component*>(&menuBar), static_cast<juce::Component*>(&themeBox), static_cast<juce::Component*>(&densityBox), static_cast<juce::Component*>(&choiceBox), static_cast<juce::Component*>(&editor) }) child->repaint();
     for (auto& tab : tabs) tab.repaint();
