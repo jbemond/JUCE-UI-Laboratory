@@ -6,3 +6,15 @@
 - v0.4 : galerie complète de composants, aperçu waveform/spectrogramme et captures d'écran automatisées.
 
 Les fonctionnalités postérieures à v0.1 ne sont pas implémentées.
+
+## Contraintes de densité (référence : ruban compact de l'Explorateur Windows)
+
+- **Compacte est le réglage par défaut**, sans imposer de grosses commandes.
+- Polices : 12 pt logiques en compact, environ 13,5 en normal, 16 en agrandi ; titre proportionné.
+- Hauteur des commandes : 25/31/39 pixels logiques ; barre de menus : 24/30/38 pixels.
+- Marges extérieures : 12/17/24 pixels ; espacement inter-commandes : 5/9/15 pixels.
+- Infobulles : délai d'une seconde sur les principales commandes.
+- Architecture future du ruban : groupes densifiés, grand/petit bouton, boutons à flèche, textes facultatifs, ruban repliable, barre d'accès rapide et disposition utilisateur persistante.
+- Les paramètres de densité sont indépendants du choix de la palette visuelle ; les valeurs sont des pixels JUCE logiques et non des pixels physiques.
+
+**Validation à réaliser :** compilation Windows/macOS/Linux, contrôle à 100 %, 125 %, 150 % HiDPI ; vérification des libellés et de l'absence de chevauchement en tailles de fenêtres réduites.
