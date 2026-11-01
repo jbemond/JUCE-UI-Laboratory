@@ -25,6 +25,7 @@ private:
         void setPalette(const Palette&);
         void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
         void drawPopupMenuBackground(juce::Graphics&, int, int) override;
+        juce::Font getPopupMenuFont() override;
         void drawMenuBarBackground(juce::Graphics&, int, int, bool, juce::MenuBarComponent&) override;
         void drawMenuBarItem(juce::Graphics&, int, int, int, const juce::String&, bool, bool, bool, juce::MenuBarComponent&) override;
         void drawPopupMenuItem(juce::Graphics&, const juce::Rectangle<int>&, bool, bool, bool, bool, bool, const juce::String&, const juce::String&, const juce::Drawable*, const juce::Colour*) override;
