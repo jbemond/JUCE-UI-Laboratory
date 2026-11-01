@@ -44,7 +44,7 @@ private:
     juce::ToggleButton nativeChooser { "Dialogue de fichiers natif" }, enabledToggle { "Activer l'option" };
     juce::Slider slider;
     juce::TextEditor editor;
-    juce::TextButton tabs[3] { { "Composants" }, { "Menus" }, { "Fichiers" } };
+    juce::TextButton tabs[3];
     std::unique_ptr<juce::FileChooser> chooser;
     juce::Array<Palette> palettes;
     Palette current;
