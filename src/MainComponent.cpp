@@ -336,6 +336,7 @@ juce::StringArray MainComponent::getMenuBarNames() { return { "Fichier", "\u00c9
 juce::PopupMenu MainComponent::getMenuForIndex(int index, const juce::String&)
 {
     juce::PopupMenu m;
+    m.setLookAndFeel(&lookAndFeel);
     if (index == 0) { m.addItem(1, "Ouvrir\u2026"); m.addItem(2, "Enregistrer\u2026"); m.addSeparator(); m.addItem(3, "Quitter"); }
     if (index == 1) { m.addItem(4, "S\u00e9lectionner tout"); m.addItem(5, "Effacer le texte"); }
     if (index == 2)
@@ -420,9 +421,11 @@ void MainComponent::buttonClicked(juce::Button* b)
     else if (b == &contextButton)
     {
         juce::PopupMenu menu;
+        menu.setLookAndFeel(&lookAndFeel);
         menu.addItem(1, "Premi\u00e8re action");
         menu.addItem(2, "Deuxi\u00e8me action");
         juce::PopupMenu sub;
+        sub.setLookAndFeel(&lookAndFeel);
         sub.addItem(3, "Sous-menu");
         menu.addSubMenu("Options suppl\u00e9mentaires", sub);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(contextButton).withPreferredPopupDirection(juce::PopupMenu::Options::PopupDirection::downwards),
