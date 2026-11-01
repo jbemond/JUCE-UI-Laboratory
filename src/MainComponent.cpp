@@ -11,10 +11,12 @@ void MainComponent::LaboratoryLookAndFeel::setPalette(const Palette& p)
     setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     setColour(juce::ComboBox::backgroundColourId, p.surface);
     setColour(juce::ComboBox::textColourId, p.text);
+    setColour(juce::ComboBox::arrowColourId, p.text);
     setColour(juce::ComboBox::outlineColourId, p.accent.withAlpha(0.4f));
     setColour(juce::TextEditor::backgroundColourId, p.surface);
     setColour(juce::TextEditor::textColourId, p.text);
     setColour(juce::TextEditor::outlineColourId, p.accent.withAlpha(0.5f));
+    setColour(juce::TextEditor::highlightColourId, p.accent.withAlpha(0.45f));
     setColour(juce::PopupMenu::backgroundColourId, p.surface);
     setColour(juce::PopupMenu::textColourId, p.text);
     setColour(juce::PopupMenu::highlightedBackgroundColourId, p.accent);
@@ -32,6 +34,7 @@ void MainComponent::LaboratoryLookAndFeel::drawButtonBackground(juce::Graphics& 
     const bool pill = style == 6 || style == 7;
     const bool tab = b.getComponentID() == "lab-tab";
     auto colour = b.getToggleState() ? palette.accent : base;
+    if (flat && ! b.getToggleState()) colour = palette.surface.interpolatedWith(palette.text, 0.08f);
     if (tab && ! b.getToggleState())
         colour = palette.background;
     if (over) colour = colour.brighter(0.10f);
@@ -57,7 +60,7 @@ void MainComponent::LaboratoryLookAndFeel::drawButtonBackground(juce::Graphics& 
         }
         g.setColour(colour);
         g.fillRoundedRectangle(r, radius);
-        if (! flat)
+        if (! flat || (style == 3 && ! tab))
         {
             g.setColour(palette.accent.withAlpha(style == 6 ? 0.10f : 0.34f));
             g.drawRoundedRectangle(r, radius, 1.0f);
@@ -353,6 +356,27 @@ void MainComponent::selectTheme(int index)
     lookAndFeel.setPalette(current);
     for (auto* child : { static_cast<juce::Component*>(&menuBar), static_cast<juce::Component*>(&themeBox), static_cast<juce::Component*>(&densityBox), static_cast<juce::Component*>(&choiceBox), static_cast<juce::Component*>(&editor) }) child->repaint();
     for (auto& tab : tabs) tab.repaint();
+    for (auto* button : { &openButton, &saveButton, &contextButton, &actionButton })
+    {
+        button->setColour(juce::TextButton::textColourOffId, current.text);
+        button->setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+        button->repaint();
+    }
+    for (auto& tab : tabs)
+    {
+        tab.setColour(juce::TextButton::textColourOffId, current.text);
+        tab.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+    }
+    for (auto* combo : { &themeBox, &densityBox, &choiceBox })
+    {
+        combo->setColour(juce::ComboBox::textColourId, current.text);
+        combo->setColour(juce::ComboBox::backgroundColourId, current.surface);
+        combo->repaint();
+    }
+    editor.setColour(juce::TextEditor::textColourId, current.text);
+    editor.setColour(juce::TextEditor::backgroundColourId, current.surface);
+    editor.applyColourToAllText(current.text, true);
+    editor.repaint();
     title.setFont(juce::Font(juce::FontOptions(current.fontSize + 12.0f, juce::Font::bold)));
     description.setFont(juce::Font(juce::FontOptions(current.fontSize)));
     menuItemsChanged();
