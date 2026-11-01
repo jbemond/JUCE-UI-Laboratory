@@ -20,6 +20,9 @@ void MainComponent::LaboratoryLookAndFeel::setPalette(const Palette& p)
     setColour(juce::PopupMenu::backgroundColourId, p.surface);
     setColour(juce::PopupMenu::textColourId, p.text);
     setColour(juce::PopupMenu::highlightedBackgroundColourId, p.accent);
+    setColour(juce::Slider::textBoxTextColourId, p.text);
+    setColour(juce::Slider::textBoxBackgroundColourId, p.surface);
+    setColour(juce::Slider::textBoxOutlineColourId, p.text.withAlpha(0.35f));
     setColour(juce::Slider::thumbColourId, p.accent);
     setColour(juce::Slider::trackColourId, p.accent.withAlpha(0.5f));
     setColour(juce::ToggleButton::textColourId, p.text);
@@ -264,11 +267,11 @@ MainComponent::MainComponent()
     palettes.add({ "JUCE Compact", juce::Colour(0xff24272b), juce::Colour(0xff34383e), juce::Colour(0xfff4f4f4), juce::Colour(0xff6facd5), 2, 1, 13 });
     palettes.add({ "JUCE Modern", juce::Colour(0xff1d222b), juce::Colour(0xff303948), juce::Colour(0xfff4f6fa), juce::Colour(0xff57b0ed), 12, 2, 16 });
     palettes.add({ "JUCE Studio", juce::Colour(0xff171b20), juce::Colour(0xff282c34), juce::Colour(0xffe4e7ed), juce::Colour(0xffe39b53), 6, 3, 15 });
-    palettes.add({ "Windows Classic (inspiré)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 4, 14 });
-    palettes.add({ "Windows 11 (inspiré)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 5, 15 });
-    palettes.add({ "macOS (inspiré)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 6, 15 });
-    palettes.add({ "GNOME Adwaita (inspiré)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 7, 15 });
-    palettes.add({ "KDE Breeze (inspiré)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 8, 15 });
+    palettes.add({ "Windows Classic (inspir\u00e9)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 4, 14 });
+    palettes.add({ "Windows 11 (inspir\u00e9)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 5, 15 });
+    palettes.add({ "macOS (inspir\u00e9)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 6, 15 });
+    palettes.add({ "GNOME Adwaita (inspir\u00e9)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 7, 15 });
+    palettes.add({ "KDE Breeze (inspir\u00e9)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 8, 15 });
     palettes.add({ "Custom Lab", juce::Colour(0xff262433), juce::Colour(0xff39364b), juce::Colour(0xfff2eefa), juce::Colour(0xffbb86fc), 10, 9, 16 });
 
     setLookAndFeel(&lookAndFeel);
@@ -279,13 +282,13 @@ MainComponent::MainComponent()
         addAndMakeVisible(l);
     };
     label(title, "JUCE UI Laboratory");
-    label(description, "Même programme, plusieurs apparences et dialogues système");
-    label(themeLabel, "Thème");
-    label(densityLabel, "Densité");
-    label(choiceLabel, "Liste déroulante");
+    label(description, "M\u00eame programme, plusieurs apparences et dialogues syst\u00e8me");
+    label(themeLabel, "Th\u00e8me");
+    label(densityLabel, "Densit\u00e9");
+    label(choiceLabel, "Liste d\u00e9roulante");
     label(sliderLabel, "Curseur");
-    label(status, "Prêt — aucun fichier ouvert");
-    label(detail, "Comparaison des composants graphiques (UTF-8 : é è ê ç œ à)");
+    label(status, "Pr\u00eat \u2014 aucun fichier ouvert");
+    label(detail, "Comparaison des composants graphiques (UTF-8 : \u00e9 \u00e8 \u00ea \u00e7 \u0153 \u00e0)");
     for (int i = 0; i < palettes.size(); ++i) themeBox.addItem(palettes[i].name, i + 1);
     densityBox.addItemList({ "Normale", "Compacte", "Large" }, 1);
     choiceBox.addItemList({ "Option A", "Option B", "Option C" }, 1);
@@ -306,7 +309,7 @@ MainComponent::MainComponent()
     slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 65, 24);
     addAndMakeVisible(slider);
     editor.setMultiLine(true);
-    editor.setText("Texte éditable — caractères UTF-8 : été, création, façade, cœur.\nEssayez de modifier le thème puis de sélectionner un fichier.");
+    editor.setText("Texte \u00e9ditable \u2014 caract\u00e8res UTF-8 : \u00e9t\u00e9, cr\u00e9ation, fa\u00e7ade, c\u0153ur.\nEssayez de modifier le th\u00e8me puis de s\u00e9lectionner un fichier.");
     addAndMakeVisible(editor);
     setSize(1120, 740);
     themeBox.setSelectedId(3);
@@ -317,16 +320,16 @@ MainComponent::~MainComponent()
     menuBar.setModel(nullptr);
     setLookAndFeel(nullptr);
 }
-juce::StringArray MainComponent::getMenuBarNames() { return { "Fichier", "Édition", "Affichage", "Outils", "Aide" }; }
+juce::StringArray MainComponent::getMenuBarNames() { return { "Fichier", "\u00c9dition", "Affichage", "Outils", "Aide" }; }
 juce::PopupMenu MainComponent::getMenuForIndex(int index, const juce::String&)
 {
     juce::PopupMenu m;
-    if (index == 0) { m.addItem(1, "Ouvrir…"); m.addItem(2, "Enregistrer…"); m.addSeparator(); m.addItem(3, "Quitter"); }
-    if (index == 1) { m.addItem(4, "Sélectionner tout"); m.addItem(5, "Effacer le texte"); }
+    if (index == 0) { m.addItem(1, "Ouvrir\u2026"); m.addItem(2, "Enregistrer\u2026"); m.addSeparator(); m.addItem(3, "Quitter"); }
+    if (index == 1) { m.addItem(4, "S\u00e9lectionner tout"); m.addItem(5, "Effacer le texte"); }
     if (index == 2)
         for (int i = 0; i < palettes.size(); ++i) m.addItem(100 + i, palettes[i].name, true, themeBox.getSelectedItemIndex() == i);
-    if (index == 3) { m.addItem(6, "Menu contextuel"); m.addItem(7, "Choisir un dossier…"); }
-    if (index == 4) m.addItem(8, "À propos du laboratoire");
+    if (index == 3) { m.addItem(6, "Menu contextuel"); m.addItem(7, "Choisir un dossier\u2026"); }
+    if (index == 4) m.addItem(8, "\u00c0 propos du laboratoire");
     return m;
 }
 void MainComponent::menuItemSelected(int id, int)
@@ -340,14 +343,14 @@ void MainComponent::menuItemSelected(int id, int)
     if (id == 6) buttonClicked(&contextButton);
     if (id == 7)
     {
-        chooser = std::make_unique<juce::FileChooser>("Sélectionner un dossier", juce::File{}, "*", nativeChooser.getToggleState());
+        chooser = std::make_unique<juce::FileChooser>("S\u00e9lectionner un dossier", juce::File{}, "*", nativeChooser.getToggleState());
         chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
             [safe = juce::Component::SafePointer<MainComponent>(this)](const juce::FileChooser& fc)
             {
                 if (safe != nullptr && fc.getResult() != juce::File{}) safe->status.setText("Dossier : " + fc.getResult().getFullPathName(), juce::dontSendNotification);
             });
     }
-    if (id == 8) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "JUCE UI Laboratory", "Démonstrateur de thèmes JUCE multiplateforme — version 0.1.0");
+    if (id == 8) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "JUCE UI Laboratory", "D\u00e9monstrateur de th\u00e8mes JUCE multiplateforme \u2014 version 0.1.0");
 }
 void MainComponent::selectTheme(int index)
 {
@@ -373,6 +376,10 @@ void MainComponent::selectTheme(int index)
         combo->setColour(juce::ComboBox::backgroundColourId, current.surface);
         combo->repaint();
     }
+    slider.setColour(juce::Slider::textBoxTextColourId, current.text);
+    slider.setColour(juce::Slider::textBoxBackgroundColourId, current.surface);
+    slider.setColour(juce::Slider::textBoxOutlineColourId, current.text.withAlpha(0.35f));
+    slider.repaint();
     editor.setColour(juce::TextEditor::textColourId, current.text);
     editor.setColour(juce::TextEditor::backgroundColourId, current.surface);
     editor.applyColourToAllText(current.text, true);
@@ -392,15 +399,15 @@ void MainComponent::buttonClicked(juce::Button* b)
 {
     if (b == &openButton) chooseFile(false);
     else if (b == &saveButton) chooseFile(true);
-    else if (b == &actionButton) status.setText("Action déclenchée — " + current.name, juce::dontSendNotification);
+    else if (b == &actionButton) status.setText("Action d\u00e9clench\u00e9e \u2014 " + current.name, juce::dontSendNotification);
     else if (b == &contextButton)
     {
         juce::PopupMenu menu;
-        menu.addItem(1, "Première action");
-        menu.addItem(2, "Deuxième action");
+        menu.addItem(1, "Premi\u00e8re action");
+        menu.addItem(2, "Deuxi\u00e8me action");
         juce::PopupMenu sub;
         sub.addItem(3, "Sous-menu");
-        menu.addSubMenu("Options supplémentaires", sub);
+        menu.addSubMenu("Options suppl\u00e9mentaires", sub);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(contextButton),
             [safe = juce::Component::SafePointer<MainComponent>(this)](int result)
             {
@@ -417,7 +424,7 @@ void MainComponent::chooseFile(bool save)
     chooser->launchAsync(chooserFlags, [safe = juce::Component::SafePointer<MainComponent>(this), save](const juce::FileChooser& fc)
     {
         if (safe != nullptr && fc.getResult() != juce::File{})
-            safe->status.setText((save ? "Destination choisie (aucune écriture) : " : "Fichier choisi : ") + fc.getResult().getFullPathName(), juce::dontSendNotification);
+            safe->status.setText((save ? "Destination choisie (aucune \u00e9criture) : " : "Fichier choisi : ") + fc.getResult().getFullPathName(), juce::dontSendNotification);
     });
 }
 void MainComponent::paint(juce::Graphics& g)
@@ -453,13 +460,30 @@ void MainComponent::updateLayout()
     controls.removeFromLeft(18);
     nativeChooser.setBounds(controls);
     area.removeFromTop(24);
-    auto tabRow = area.removeFromTop(height + 7);
-    for (auto& tab : tabs) { tab.setBounds(tabRow.removeFromLeft(145).reduced(3, 2)); }
-    area.removeFromTop(spacing + 8);
+    // Audio studio and GNOME: navigation on the left instead of horizontal tabs.
+    if (current.style == 3 || current.style == 7)
+    {
+        auto sidebar = area.removeFromLeft(167);
+        sidebar.removeFromTop(4);
+        for (auto& tab : tabs)
+        {
+            tab.setBounds(sidebar.removeFromTop(height + 12).reduced(4, 5));
+        }
+        area.removeFromLeft(12);
+        area.removeFromTop(5);
+    }
+    else
+    {
+        auto tabRow = area.removeFromTop(height + 7);
+        const int tabWidth = current.style == 6 ? 120 : current.style == 1 ? 112 : 145;
+        for (auto& tab : tabs) { tab.setBounds(tabRow.removeFromLeft(tabWidth).reduced(3, 2)); }
+        area.removeFromTop(spacing + 8);
+    }
     auto buttons = area.removeFromTop(height);
+    const int actionWidth = (current.style == 3 || current.style == 7) ? 150 : 168;
     for (auto* b : { &openButton, &saveButton, &contextButton, &actionButton })
     {
-        b->setBounds(buttons.removeFromLeft(168).reduced(4, 0));
+        b->setBounds(buttons.removeFromLeft(actionWidth).reduced(4, 0));
         buttons.removeFromLeft(spacing);
     }
     area.removeFromTop(spacing + 6);
