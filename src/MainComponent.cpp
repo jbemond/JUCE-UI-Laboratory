@@ -271,11 +271,11 @@ MainComponent::MainComponent()
     palettes.add({ "JUCE Compact", juce::Colour(0xff24272b), juce::Colour(0xff34383e), juce::Colour(0xfff4f4f4), juce::Colour(0xff6facd5), 2, 1, 13 });
     palettes.add({ "JUCE Modern", juce::Colour(0xff1d222b), juce::Colour(0xff303948), juce::Colour(0xfff4f6fa), juce::Colour(0xff57b0ed), 12, 2, 16 });
     palettes.add({ "JUCE Studio", juce::Colour(0xff171b20), juce::Colour(0xff282c34), juce::Colour(0xffe4e7ed), juce::Colour(0xffe39b53), 6, 3, 15 });
-    palettes.add({ "Windows Classic (inspiré)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 4, 14 });
-    palettes.add({ "Windows 11 (inspiré)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 5, 15 });
-    palettes.add({ "macOS (inspiré)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 6, 15 });
-    palettes.add({ "GNOME Adwaita (inspiré)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 7, 15 });
-    palettes.add({ "KDE Breeze (inspiré)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 8, 15 });
+    palettes.add({ juce::String::fromUTF8(u8"Windows Classic (inspiré)"), juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 4, 14 });
+    palettes.add({ juce::String::fromUTF8(u8"Windows 11 (inspiré)"), juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 5, 15 });
+    palettes.add({ juce::String::fromUTF8(u8"macOS (inspiré)"), juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 6, 15 });
+    palettes.add({ juce::String::fromUTF8(u8"GNOME Adwaita (inspiré)"), juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 7, 15 });
+    palettes.add({ juce::String::fromUTF8(u8"KDE Breeze (inspiré)"), juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 8, 15 });
     palettes.add({ "Custom Lab", juce::Colour(0xff262433), juce::Colour(0xff39364b), juce::Colour(0xfff2eefa), juce::Colour(0xffbb86fc), 10, 9, 16 });
 
     setLookAndFeel(&lookAndFeel);
@@ -286,13 +286,13 @@ MainComponent::MainComponent()
         addAndMakeVisible(l);
     };
     label(title, "JUCE UI Laboratory");
-    label(description, "Même programme, plusieurs apparences et dialogues système");
-    label(themeLabel, "Thème");
-    label(densityLabel, "Densité");
-    label(choiceLabel, "Liste déroulante");
+    label(description, juce::String::fromUTF8(u8"Même programme, plusieurs apparences et dialogues système"));
+    label(themeLabel, juce::String::fromUTF8(u8"Thème"));
+    label(densityLabel, juce::String::fromUTF8(u8"Densité"));
+    label(choiceLabel, juce::String::fromUTF8(u8"Liste déroulante"));
     label(sliderLabel, "Curseur");
-    label(status, "Prêt — aucun fichier ouvert");
-    label(detail, "Comparaison des composants graphiques (UTF-8 : é è ê ç œ à)");
+    label(status, juce::String::fromUTF8(u8"Prêt — aucun fichier ouvert"));
+    label(detail, juce::String::fromUTF8(u8"Comparaison des composants graphiques (UTF-8 : é è ê ç œ à)"));
     for (int i = 0; i < palettes.size(); ++i) themeBox.addItem(palettes[i].name, i + 1);
     densityBox.addItemList({ "Normale", "Compacte", "Large" }, 1);
     choiceBox.addItemList({ "Option A", "Option B", "Option C" }, 1);
@@ -313,7 +313,7 @@ MainComponent::MainComponent()
     slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 65, 24);
     addAndMakeVisible(slider);
     editor.setMultiLine(true);
-    editor.setText("Texte éditable — caractères UTF-8 : été, création, façade, cœur.\nEssayez de modifier le thème puis de sélectionner un fichier.");
+    editor.setText(juce::String::fromUTF8(u8"Texte éditable — caractères UTF-8 : été, création, façade, cœur.\nEssayez de modifier le thème puis de sélectionner un fichier."));
     addAndMakeVisible(editor);
     setSize(1040, 680);
     openButton.setTooltip("Ouvrir un fichier - dialogue natif ou JUCE");
@@ -332,18 +332,18 @@ MainComponent::~MainComponent()
     menuBar.setModel(nullptr);
     setLookAndFeel(nullptr);
 }
-juce::StringArray MainComponent::getMenuBarNames() { return { "Fichier", "Édition", "Affichage", "Outils", "Aide" }; }
+juce::StringArray MainComponent::getMenuBarNames() { return { "Fichier", juce::String::fromUTF8(u8"Édition"), "Affichage", "Outils", "Aide" }; }
 juce::PopupMenu MainComponent::getMenuForIndex(int index, const juce::String&)
 {
     juce::PopupMenu m;
     m.setLookAndFeel(&lookAndFeel);
-    if (index == 0) { m.addItem(1, "Ouvrir…"); m.addItem(2, "Enregistrer…"); m.addSeparator(); m.addItem(3, "Quitter"); }
-    if (index == 1) { m.addItem(4, "Sélectionner tout"); m.addItem(5, "Effacer le texte"); }
+    if (index == 0) { m.addItem(1, juce::String::fromUTF8(u8"Ouvrir…")); m.addItem(2, juce::String::fromUTF8(u8"Enregistrer…")); m.addSeparator(); m.addItem(3, "Quitter"); }
+    if (index == 1) { m.addItem(4, juce::String::fromUTF8(u8"Sélectionner tout")); m.addItem(5, "Effacer le texte"); }
     if (index == 2)
         for (int i = 0; i < palettes.size(); ++i)
             m.addItem(100 + i, palettes[i].name, true, themeBox.getSelectedItemIndex() == i);
-    if (index == 3) { m.addItem(6, "Menu contextuel"); m.addItem(7, "Choisir un dossier…"); }
-    if (index == 4) m.addItem(8, "À propos du laboratoire");
+    if (index == 3) { m.addItem(6, "Menu contextuel"); m.addItem(7, juce::String::fromUTF8(u8"Choisir un dossier…")); }
+    if (index == 4) m.addItem(8, juce::String::fromUTF8(u8"À propos du laboratoire"));
     return m;
 }
 void MainComponent::menuItemSelected(int id, int)
@@ -357,14 +357,14 @@ void MainComponent::menuItemSelected(int id, int)
     if (id == 6) buttonClicked(&contextButton);
     if (id == 7)
     {
-        chooser = std::make_unique<juce::FileChooser>("Sélectionner un dossier", juce::File{}, "*", nativeChooser.getToggleState());
+        chooser = std::make_unique<juce::FileChooser>(juce::String::fromUTF8(u8"Sélectionner un dossier"), juce::File{}, "*", nativeChooser.getToggleState());
         chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
             [safe = juce::Component::SafePointer<MainComponent>(this)](const juce::FileChooser& fc)
             {
                 if (safe != nullptr && fc.getResult() != juce::File{}) safe->status.setText("Dossier : " + fc.getResult().getFullPathName(), juce::dontSendNotification);
             });
     }
-    if (id == 8) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "JUCE UI Laboratory", "Démonstrateur de thèmes JUCE multiplateforme — version 0.1.0");
+    if (id == 8) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "JUCE UI Laboratory", juce::String::fromUTF8(u8"Démonstrateur de thèmes JUCE multiplateforme — version 0.1.0"));
 }
 void MainComponent::selectTheme(int index)
 {
@@ -417,17 +417,17 @@ void MainComponent::buttonClicked(juce::Button* b)
 {
     if (b == &openButton) chooseFile(false);
     else if (b == &saveButton) chooseFile(true);
-    else if (b == &actionButton) status.setText("Action déclenchée — " + current.name, juce::dontSendNotification);
+    else if (b == &actionButton) status.setText(juce::String::fromUTF8(u8"Action déclenchée — ") + current.name, juce::dontSendNotification);
     else if (b == &contextButton)
     {
         juce::PopupMenu menu;
         menu.setLookAndFeel(&lookAndFeel);
-        menu.addItem(1, "Première action");
-        menu.addItem(2, "Deuxième action");
+        menu.addItem(1, juce::String::fromUTF8(u8"Première action"));
+        menu.addItem(2, juce::String::fromUTF8(u8"Deuxième action"));
         juce::PopupMenu sub;
         sub.setLookAndFeel(&lookAndFeel);
         sub.addItem(3, "Sous-menu");
-        menu.addSubMenu("Options supplémentaires", sub);
+        menu.addSubMenu(juce::String::fromUTF8(u8"Options supplémentaires"), sub);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(contextButton).withPreferredPopupDirection(juce::PopupMenu::Options::PopupDirection::downwards),
             [safe = juce::Component::SafePointer<MainComponent>(this)](int result)
             {
@@ -444,7 +444,7 @@ void MainComponent::chooseFile(bool save)
     chooser->launchAsync(chooserFlags, [safe = juce::Component::SafePointer<MainComponent>(this), save](const juce::FileChooser& fc)
     {
         if (safe != nullptr && fc.getResult() != juce::File{})
-            safe->status.setText((save ? "Destination choisie (aucune écriture) : " : "Fichier choisi : ") + fc.getResult().getFullPathName(), juce::dontSendNotification);
+            safe->status.setText((save ? juce::String::fromUTF8(u8"Destination choisie (aucune écriture) : ") : "Fichier choisi : ") + fc.getResult().getFullPathName(), juce::dontSendNotification);
     });
 }
 void MainComponent::paint(juce::Graphics& g)
