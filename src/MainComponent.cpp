@@ -414,7 +414,9 @@ void MainComponent::updateLayout()
     const int spacing = density == 1 ? 6 : density == 2 ? 17 : 11;
     const int height = density == 1 ? 27 : density == 2 ? 39 : 33;
     auto area = getLocalBounds();
-    const int menuHeight = current.style == 1 ? 25 : current.style == 4 ? 27 :\n                           current.style == 6 || current.style == 7 ? 39 : 33;\n    menuBar.setBounds(area.removeFromTop(menuHeight));
+    const int menuHeight = current.style == 1 ? 25 : current.style == 4 ? 27 :
+                           current.style == 6 || current.style == 7 ? 39 : 33;
+    menuBar.setBounds(area.removeFromTop(menuHeight));
     area.reduce(22, 12);
     title.setBounds(area.removeFromTop(46));
     description.setBounds(area.removeFromTop(31));
