@@ -90,6 +90,119 @@ void MainComponent::LaboratoryLookAndFeel::drawPopupMenuBackground(juce::Graphic
         g.drawRect(0, 0, w, h, 1);
     }
 }
+void MainComponent::LaboratoryLookAndFeel::drawMenuBarBackground(juce::Graphics& g, int w, int h, bool, juce::MenuBarComponent&)
+{
+    const int s = palette.style;
+    g.fillAll((s == 1 || s == 3 || s == 4) ? palette.surface : palette.background);
+    if (s == 0 || s == 4)
+    {
+        g.setColour(juce::Colours::white.withAlpha(0.75f));
+        g.drawHorizontalLine(0, 0.0f, (float) w);
+        g.setColour(palette.text.withAlpha(0.40f));
+        g.drawHorizontalLine(h - 1, 0.0f, (float) w);
+    }
+    else if (s == 3)
+    {
+        g.setColour(palette.accent);
+        g.fillRect(0, h - 2, w, 2);
+    }
+    else if (s == 5 || s == 6 || s == 8)
+    {
+        g.setColour(palette.text.withAlpha(0.09f));
+        g.drawHorizontalLine(h - 1, 0.0f, (float) w);
+    }
+}
+juce::Font MainComponent::LaboratoryLookAndFeel::getMenuBarFont(juce::MenuBarComponent&, int, const juce::String&)
+{
+    return juce::Font(juce::FontOptions(palette.fontSize + (palette.style == 6 ? 0.5f : 0.0f)));
+}
+int MainComponent::LaboratoryLookAndFeel::getMenuBarItemWidth(juce::MenuBarComponent& bar, int item, const juce::String& text)
+{
+    const auto font = getMenuBarFont(bar, item, text);
+    const int padding = palette.style == 1 ? 12 : (palette.style == 6 || palette.style == 7 ? 32 : 23);
+    return juce::GlyphArrangement::getStringWidthInt(font, text) + padding;
+}
+void MainComponent::LaboratoryLookAndFeel::drawMenuBarItem(juce::Graphics& g, int w, int h, int index, const juce::String& text,
+                                                              bool over, bool open, bool, juce::MenuBarComponent& bar)
+{
+    const int s = palette.style;
+    auto r = juce::Rectangle<float>(1.0f, 2.0f, (float) w - 2.0f, (float) h - 4.0f);
+    if (open || over)
+    {
+        g.setColour(open ? palette.accent : palette.accent.withAlpha(s == 4 ? 0.40f : 0.18f));
+        if (s == 0 || s == 4) g.fillRect(r);
+        else if (s == 3) g.fillRect(r.removeFromBottom(3.0f));
+        else g.fillRoundedRectangle(r, s == 6 || s == 7 ? 9.0f : 5.0f);
+    }
+    g.setColour(open && s != 3 ? juce::Colours::white : palette.text.withMultipliedAlpha(bar.isEnabled() ? 1.0f : 0.4f));
+    g.setFont(getMenuBarFont(bar, index, text));
+    g.drawFittedText(text, 0, 0, w, h, juce::Justification::centred, 1);
+}
+void MainComponent::LaboratoryLookAndFeel::getIdealPopupMenuItemSize(const juce::String& text, bool separator,
+                                                                       int standardHeight, int& width, int& height)
+{
+    juce::LookAndFeel_V4::getIdealPopupMenuItemSize(text, separator, standardHeight, width, height);
+    if (separator)
+    {
+        height = palette.style == 1 || palette.style == 4 ? 5 : 12;
+    }
+    else
+    {
+        height = palette.style == 1 ? 23 : palette.style == 4 ? 25 :
+                 palette.style == 6 || palette.style == 7 ? 37 : 31;
+        width += palette.style == 6 || palette.style == 7 ? 34 : 14;
+    }
+}
+void MainComponent::LaboratoryLookAndFeel::drawPopupMenuItem(juce::Graphics& g, const juce::Rectangle<int>& area,
+                                                               bool separator, bool active, bool highlighted, bool ticked,
+                                                               bool hasSubMenu, const juce::String& text, const juce::String& shortcut,
+                                                               const juce::Drawable* icon, const juce::Colour* textColour)
+{
+    if (separator)
+    {
+        g.setColour(palette.text.withAlpha(0.18f));
+        g.fillRect(area.reduced(palette.style == 4 ? 3 : 14, 0).withHeight(1).withY(area.getCentreY()));
+        return;
+    }
+    const int s = palette.style;
+    if (active && highlighted)
+    {
+        g.setColour(palette.accent.withAlpha(s == 4 || s == 0 ? 1.0f : 0.82f));
+        auto r = area.toFloat().reduced(s == 4 ? 0.0f : 4.0f, 1.0f);
+        if (s == 4 || s == 0) g.fillRect(r);
+        else g.fillRoundedRectangle(r, (float) (s == 6 || s == 7 ? 8 : palette.corner));
+    }
+    const bool selected = active && highlighted;
+    g.setColour(textColour != nullptr ? *textColour :
+                selected ? juce::Colours::white : palette.text.withMultipliedAlpha(active ? 1.0f : 0.45f));
+    const auto font = juce::Font(juce::FontOptions(palette.fontSize));
+    g.setFont(font);
+    const int inset = s == 4 ? 25 : 32;
+    g.drawFittedText(text, area.withTrimmedLeft(inset).withTrimmedRight(54),
+                     juce::Justification::centredLeft, 1);
+    if (shortcut.isNotEmpty())
+    {
+        g.setFont(juce::Font(juce::FontOptions(palette.fontSize - 1.0f)));
+        g.drawFittedText(shortcut, area.withTrimmedRight(18), juce::Justification::centredRight, 1);
+    }
+    if (ticked)
+    {
+        g.drawLine((float) area.getX() + 10, (float) area.getCentreY(),
+                   (float) area.getX() + 14, (float) area.getCentreY() + 4, 2.0f);
+        g.drawLine((float) area.getX() + 14, (float) area.getCentreY() + 4,
+                   (float) area.getX() + 21, (float) area.getCentreY() - 5, 2.0f);
+    }
+    if (hasSubMenu)
+    {
+        juce::Path arrow;
+        const float x = (float) area.getRight() - 14.0f, y = (float) area.getCentreY();
+        arrow.startNewSubPath(x - 3, y - 4);
+        arrow.lineTo(x + 1, y);
+        arrow.lineTo(x - 3, y + 4);
+        g.strokePath(arrow, juce::PathStrokeType(1.5f));
+    }
+    juce::ignoreUnused(icon);
+}
 void MainComponent::LaboratoryLookAndFeel::drawComboBox(juce::Graphics& g, int w, int h, bool,
                                                           int, int, int, int, juce::ComboBox& box)
 {
@@ -301,7 +414,7 @@ void MainComponent::updateLayout()
     const int spacing = density == 1 ? 6 : density == 2 ? 17 : 11;
     const int height = density == 1 ? 27 : density == 2 ? 39 : 33;
     auto area = getLocalBounds();
-    menuBar.setBounds(area.removeFromTop(29));
+    const int menuHeight = current.style == 1 ? 25 : current.style == 4 ? 27 :\n                           current.style == 6 || current.style == 7 ? 39 : 33;\n    menuBar.setBounds(area.removeFromTop(menuHeight));
     area.reduce(22, 12);
     title.setBounds(area.removeFromTop(46));
     description.setBounds(area.removeFromTop(31));
