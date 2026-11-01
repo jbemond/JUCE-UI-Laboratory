@@ -17,7 +17,7 @@ for path in ROOT.rglob("*"):
         if path.suffix in {".cpp", ".h", ".hpp"}:
             # JUCE 8 / C++17: raw non-ASCII char* literals are not UTF-8 decoded
             # automatically by juce::String. Require explicit fromUTF8(u8"...").
-            literal_pattern = re.compile(r'(?:u8)?"(?:\\\\.|[^"\\\\])*"', re.DOTALL)
+            literal_pattern = re.compile(r'(?:u8)?"(?:\\.|[^"\\])*"', re.DOTALL)
             for match in literal_pattern.finditer(text):
                 literal = match.group(0)
                 if any(ord(ch) > 127 for ch in literal):
