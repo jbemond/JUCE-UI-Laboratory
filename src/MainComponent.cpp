@@ -23,36 +23,137 @@ void MainComponent::LaboratoryLookAndFeel::setPalette(const Palette& p)
     setColour(juce::ToggleButton::textColourId, p.text);
     setColour(juce::ToggleButton::tickColourId, p.accent);
 }
-void MainComponent::LaboratoryLookAndFeel::drawButtonBackground(juce::Graphics& g, juce::Button& b, const juce::Colour& colour, bool over, bool down)
+void MainComponent::LaboratoryLookAndFeel::drawButtonBackground(juce::Graphics& g, juce::Button& b, const juce::Colour& base, bool over, bool down)
 {
     auto r = b.getLocalBounds().toFloat().reduced(1.0f);
-    auto c = b.getToggleState() ? palette.accent : colour;
-    if (down) c = c.darker(0.18f);
-    else if (over) c = c.brighter(0.13f);
-    g.setColour(c);
-    g.fillRoundedRectangle(r, static_cast<float>(palette.corner));
-    g.setColour(palette.accent.withAlpha(0.25f));
-    g.drawRoundedRectangle(r, static_cast<float>(palette.corner), 1.0f);
+    const int style = palette.style;
+    const bool classic = style == 0 || style == 4;
+    const bool flat = style == 1 || style == 3;
+    const bool pill = style == 6 || style == 7;
+    const bool tab = b.getComponentID() == "lab-tab";
+    auto colour = b.getToggleState() ? palette.accent : base;
+    if (tab && ! b.getToggleState())
+        colour = palette.background;
+    if (over) colour = colour.brighter(0.10f);
+    if (down) colour = colour.darker(0.20f);
+    const float radius = classic ? 0.0f : (pill ? r.getHeight() * 0.48f : (float) palette.corner);
+    if (classic)
+    {
+        g.setColour(colour);
+        g.fillRect(r);
+        g.setColour(down ? juce::Colours::darkgrey : juce::Colours::white);
+        g.drawLine(r.getX(), r.getBottom(), r.getX(), r.getY(), 2.0f);
+        g.drawLine(r.getX(), r.getY(), r.getRight(), r.getY(), 2.0f);
+        g.setColour(down ? juce::Colours::white : juce::Colours::darkgrey);
+        g.drawLine(r.getRight(), r.getY(), r.getRight(), r.getBottom(), 2.0f);
+        g.drawLine(r.getX(), r.getBottom(), r.getRight(), r.getBottom(), 2.0f);
+    }
+    else
+    {
+        if (style == 5 || style == 8)
+        {
+            g.setColour(juce::Colours::black.withAlpha(0.10f));
+            g.fillRoundedRectangle(r.translated(0.0f, 2.0f), radius);
+        }
+        g.setColour(colour);
+        g.fillRoundedRectangle(r, radius);
+        if (! flat)
+        {
+            g.setColour(palette.accent.withAlpha(style == 6 ? 0.10f : 0.34f));
+            g.drawRoundedRectangle(r, radius, 1.0f);
+        }
+        if (tab && b.getToggleState())
+        {
+            g.setColour(palette.accent);
+            if (style == 6 || style == 5 || style == 8)
+                g.fillRoundedRectangle(r.removeFromBottom(3.0f), 1.5f);
+            else
+                g.fillRect(r.removeFromBottom(3.0f));
+        }
+    }
 }
 void MainComponent::LaboratoryLookAndFeel::drawPopupMenuBackground(juce::Graphics& g, int w, int h)
 {
     g.fillAll(palette.surface);
-    g.setColour(palette.accent.withAlpha(0.5f));
-    g.drawRect(0, 0, w, h);
+    if (palette.style == 4 || palette.style == 0)
+    {
+        g.setColour(juce::Colours::white);
+        g.drawLine(0, 0, (float) w, 0, 2.0f);
+        g.drawLine(0, 0, 0, (float) h, 2.0f);
+        g.setColour(juce::Colours::grey);
+        g.drawLine((float) w - 1, 0, (float) w - 1, (float) h, 2.0f);
+        g.drawLine(0, (float) h - 1, (float) w, (float) h - 1, 2.0f);
+    }
+    else
+    {
+        g.setColour(palette.accent.withAlpha(palette.style == 3 ? 0.6f : 0.22f));
+        g.drawRect(0, 0, w, h, 1);
+    }
+}
+void MainComponent::LaboratoryLookAndFeel::drawComboBox(juce::Graphics& g, int w, int h, bool,
+                                                          int, int, int, int, juce::ComboBox& box)
+{
+    auto r = juce::Rectangle<float>(0.5f, 0.5f, (float) w - 1.0f, (float) h - 1.0f);
+    const bool classic = palette.style == 0 || palette.style == 4;
+    const float radius = classic ? 0.0f : (palette.style == 6 ? 10.0f : (float) palette.corner);
+    g.setColour(palette.surface);
+    g.fillRoundedRectangle(r, radius);
+    g.setColour(classic ? palette.text.withAlpha(0.65f) : palette.accent.withAlpha(0.35f));
+    g.drawRoundedRectangle(r, radius, 1.0f);
+    juce::Path arrow;
+    const float x = (float) w - 16.0f, y = (float) h * 0.5f;
+    arrow.startNewSubPath(x - 4.0f, y - 2.0f);
+    arrow.lineTo(x, y + 2.0f);
+    arrow.lineTo(x + 4.0f, y - 2.0f);
+    g.setColour(palette.text);
+    g.strokePath(arrow, juce::PathStrokeType(1.6f));
+    juce::ignoreUnused(box);
+}
+void MainComponent::LaboratoryLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool over, bool)
+{
+    const auto bounds = button.getLocalBounds().toFloat();
+    const bool on = button.getToggleState();
+    const bool switchStyle = palette.style == 5 || palette.style == 6 || palette.style == 7;
+    if (switchStyle)
+    {
+        const juce::Rectangle<float> track(2.0f, bounds.getCentreY() - 10.0f, 38.0f, 20.0f);
+        g.setColour(on ? palette.accent : palette.text.withAlpha(0.30f));
+        g.fillRoundedRectangle(track, 10.0f);
+        g.setColour(juce::Colours::white);
+        g.fillEllipse(on ? 22.0f : 4.0f, track.getY() + 2.0f, 16.0f, 16.0f);
+    }
+    else
+    {
+        juce::Rectangle<float> square(3.0f, bounds.getCentreY() - 8.0f, 16.0f, 16.0f);
+        g.setColour(on ? palette.accent : palette.surface);
+        g.fillRoundedRectangle(square, palette.style == 4 ? 0.0f : 3.0f);
+        g.setColour(palette.text.withAlpha(0.6f));
+        g.drawRoundedRectangle(square, palette.style == 4 ? 0.0f : 3.0f, 1.0f);
+        if (on)
+        {
+            g.setColour(juce::Colours::white);
+            g.drawLine(6.0f, bounds.getCentreY(), 10.0f, bounds.getCentreY() + 4.0f, 2.0f);
+            g.drawLine(10.0f, bounds.getCentreY() + 4.0f, 17.0f, bounds.getCentreY() - 5.0f, 2.0f);
+        }
+    }
+    g.setColour(palette.text.brighter(over ? 0.1f : 0.0f));
+    g.setFont(juce::Font(juce::FontOptions(palette.fontSize)));
+    g.drawFittedText(button.getButtonText(), juce::Rectangle<int>(switchStyle ? 48 : 26, 0, button.getWidth() - (switchStyle ? 48 : 26), button.getHeight()),
+                     juce::Justification::centredLeft, 1);
 }
 
 MainComponent::MainComponent()
 {
-    palettes.add({ "JUCE Classic", juce::Colour(0xffe3e3e3), juce::Colour(0xfff7f7f7), juce::Colour(0xff202020), juce::Colour(0xff507caf), 4, 15 });
-    palettes.add({ "JUCE Compact", juce::Colour(0xff24272b), juce::Colour(0xff34383e), juce::Colour(0xfff4f4f4), juce::Colour(0xff6facd5), 2, 13 });
-    palettes.add({ "JUCE Modern", juce::Colour(0xff1d222b), juce::Colour(0xff303948), juce::Colour(0xfff4f6fa), juce::Colour(0xff57b0ed), 12, 16 });
-    palettes.add({ "JUCE Studio", juce::Colour(0xff171b20), juce::Colour(0xff282c34), juce::Colour(0xffe4e7ed), juce::Colour(0xffe39b53), 6, 15 });
-    palettes.add({ "Windows Classic (inspiré)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 14 });
-    palettes.add({ "Windows 11 (inspiré)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 15 });
-    palettes.add({ "macOS (inspiré)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 15 });
-    palettes.add({ "GNOME Adwaita (inspiré)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 15 });
-    palettes.add({ "KDE Breeze (inspiré)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 15 });
-    palettes.add({ "Custom Lab", juce::Colour(0xff262433), juce::Colour(0xff39364b), juce::Colour(0xfff2eefa), juce::Colour(0xffbb86fc), 10, 16 });
+    palettes.add({ "JUCE Classic", juce::Colour(0xffe3e3e3), juce::Colour(0xfff7f7f7), juce::Colour(0xff202020), juce::Colour(0xff507caf), 4, 0, 15 });
+    palettes.add({ "JUCE Compact", juce::Colour(0xff24272b), juce::Colour(0xff34383e), juce::Colour(0xfff4f4f4), juce::Colour(0xff6facd5), 2, 1, 13 });
+    palettes.add({ "JUCE Modern", juce::Colour(0xff1d222b), juce::Colour(0xff303948), juce::Colour(0xfff4f6fa), juce::Colour(0xff57b0ed), 12, 2, 16 });
+    palettes.add({ "JUCE Studio", juce::Colour(0xff171b20), juce::Colour(0xff282c34), juce::Colour(0xffe4e7ed), juce::Colour(0xffe39b53), 6, 3, 15 });
+    palettes.add({ "Windows Classic (inspiré)", juce::Colour(0xffd4d0c8), juce::Colour(0xffefede7), juce::Colour(0xff1d1d1d), juce::Colour(0xff2753b5), 0, 4, 14 });
+    palettes.add({ "Windows 11 (inspiré)", juce::Colour(0xffebedf2), juce::Colour(0xffffffff), juce::Colour(0xff20252c), juce::Colour(0xff0067c0), 8, 5, 15 });
+    palettes.add({ "macOS (inspiré)", juce::Colour(0xffeeeeef), juce::Colour(0xffffffff), juce::Colour(0xff25262a), juce::Colour(0xff007aff), 10, 6, 15 });
+    palettes.add({ "GNOME Adwaita (inspiré)", juce::Colour(0xfff6f5f4), juce::Colour(0xffffffff), juce::Colour(0xff242424), juce::Colour(0xff3584e4), 9, 7, 15 });
+    palettes.add({ "KDE Breeze (inspiré)", juce::Colour(0xffeff2f5), juce::Colour(0xffffffff), juce::Colour(0xff232629), juce::Colour(0xff3daee9), 5, 8, 15 });
+    palettes.add({ "Custom Lab", juce::Colour(0xff262433), juce::Colour(0xff39364b), juce::Colour(0xfff2eefa), juce::Colour(0xffbb86fc), 10, 9, 16 });
 
     setLookAndFeel(&lookAndFeel);
     addAndMakeVisible(menuBar);
@@ -77,7 +178,8 @@ MainComponent::MainComponent()
     choiceBox.setSelectedId(1);
     for (auto* b : { &openButton, &saveButton, &contextButton, &actionButton }) { addAndMakeVisible(*b); b->addListener(this); }
     const juce::String tabNames[] = { "Composants", "Menus", "Fichiers" };
-    for (int i = 0; i < 3; ++i) { tabs[i].setButtonText(tabNames[i]); addAndMakeVisible(tabs[i]); tabs[i].addListener(this); }
+    for (int i = 0; i < 3; ++i) { tabs[i].setButtonText(tabNames[i]); tabs[i].setComponentID("lab-tab"); tabs[i].setClickingTogglesState(true); tabs[i].setRadioGroupId(1001); addAndMakeVisible(tabs[i]); tabs[i].addListener(this); }
+    tabs[0].setToggleState(true, juce::dontSendNotification);
     nativeChooser.setToggleState(true, juce::dontSendNotification);
     enabledToggle.setToggleState(true, juce::dontSendNotification);
     addAndMakeVisible(nativeChooser);
@@ -136,6 +238,8 @@ void MainComponent::selectTheme(int index)
     if (! juce::isPositiveAndBelow(index, palettes.size())) return;
     current = palettes[index];
     lookAndFeel.setPalette(current);
+    for (auto* child : { static_cast<juce::Component*>(&menuBar), static_cast<juce::Component*>(&themeBox), static_cast<juce::Component*>(&densityBox), static_cast<juce::Component*>(&choiceBox), static_cast<juce::Component*>(&editor) }) child->repaint();
+    for (auto& tab : tabs) tab.repaint();
     title.setFont(juce::Font(juce::FontOptions(current.fontSize + 12.0f, juce::Font::bold)));
     description.setFont(juce::Font(juce::FontOptions(current.fontSize)));
     menuItemsChanged();
@@ -185,9 +289,11 @@ void MainComponent::paint(juce::Graphics& g)
     auto r = getLocalBounds().reduced(20);
     r.removeFromTop(157);
     g.setColour(current.surface);
-    g.fillRoundedRectangle(r.toFloat(), static_cast<float>(current.corner));
+    if (current.style == 4 || current.style == 0) g.fillRect(r);
+    else g.fillRoundedRectangle(r.toFloat(), static_cast<float>(current.corner));
     g.setColour(current.accent.withAlpha(0.25f));
-    g.drawRoundedRectangle(r.toFloat(), static_cast<float>(current.corner), 1.0f);
+    if (current.style == 4 || current.style == 0) g.drawRect(r, 1);
+    else g.drawRoundedRectangle(r.toFloat(), static_cast<float>(current.corner), 1.0f);
 }
 void MainComponent::resized() { updateLayout(); }
 void MainComponent::updateLayout()
